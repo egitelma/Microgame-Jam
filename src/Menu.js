@@ -40,7 +40,7 @@ class Menu extends Phaser.Scene {
             game.settings = {
                 gameTime: 15000
             }
-            this.scene.start("Play");
+            this.scene.start("playScene");
         }
     }
 }

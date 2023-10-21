@@ -1,6 +1,6 @@
 class Play extends Phaser.Scene {
     constructor() {
-        super('Play');
+        super('playScene');
     }
 
     preload() {
@@ -10,17 +10,30 @@ class Play extends Phaser.Scene {
             frameHeight: 48
         });
 
+        //load up nut spritesheet
+        this.load.spritesheet("nut", "./assets/nutSpin.png", {
+            frameWidth: 32,
+            frameHeight: 32
+        });
+
     }
 
     create() {
-        console.log("HELLO!!!!! CAN ANYBODY HEAR ME!!!!!");
         this.cameras.main.setBackgroundColor("0x282247");
 
-        //set sprite as a physics body
+        //set player sprite as a physics body
         this.player = this.physics.add.sprite(48, 48, "character", 1).setScale(2);
-        this.player.body.setCollideWorldBounds(true);
-        this.player.body.setSize(32, 32).setOffset(8, 16)
+        this.player.body.setCollideWorldBounds(true).setSize(32, 32).setOffset(8, 16);
         this.PLAYER_VELOCITY = 350;
+
+        //set nut sprite as a physics body
+        this.nut = this.physics.add.sprite(400, 48, "nut", 1).setScale(2);
+        this.nut.body.setAllowGravity(true).setSize(32, 32).setCollideWorldBounds(true);
+        this.NUT_VELOCITY = 100;
+
+        //inivisible platform?
+        this.platform = this.physics.add.sprite(400, 400, "nut", 1).setScale(2);
+        this.nut.body.
 
         //set variable for to bind up, down, left, right
         cursors = this.input.keyboard.createCursorKeys();
@@ -105,6 +118,17 @@ class Play extends Phaser.Scene {
                 end: 8
             })
         });
+
+        //falling objects animations
+        this.anims.create({
+            key: "nut-spin",
+            frameRate: 5,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers("nut", {
+                start: 0,
+                end: 5
+            })
+        });
         
         playerDirection = "down";
     }
@@ -133,7 +157,10 @@ class Play extends Phaser.Scene {
         this.player.setVelocity(this.PLAYER_VELOCITY * playerVector.x, this.PLAYER_VELOCITY * playerVector.y);
 
         let playerMovement;
-        playerVector.length() ? playerMovement = "walk" : playerMovement = "idle"
-        this.player.play(playerMovement + "-" + playerDirection, true);
+        playerVector.length() ? playerMovement = "walk" : playerMovement = "idle" //idle or walk animation?
+        this.player.play(playerMovement + "-" + playerDirection, true); //plays animation
+
+        this.nut.setVelocity(0, this.NUT_VELOCITY);
+        this.nut.play("nut-spin", true);
     }
 }
