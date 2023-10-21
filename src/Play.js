@@ -5,9 +5,9 @@ class Play extends Phaser.Scene {
 
     preload() {
         //load up placeholder spritesheet
-        this.load.spritesheet("character", "./assets/Placeholder.png", {
-            frameWidth: 48,
-            frameHeight: 48
+        this.load.spritesheet("character", "./assets/buddy.png", {
+            frameWidth: 32,
+            frameHeight: 32
         });
 
         //load up nut spritesheet
@@ -22,18 +22,18 @@ class Play extends Phaser.Scene {
         this.cameras.main.setBackgroundColor("0x282247");
 
         //set player sprite as a physics body
-        this.player = this.physics.add.sprite(48, 48, "character", 1).setScale(2);
-        this.player.body.setCollideWorldBounds(true).setSize(32, 32).setOffset(8, 16);
+        this.player = this.physics.add.sprite(32, 32, "character", 1).setScale(3);
+        this.player.body.setCollideWorldBounds(true).setSize(16, 16);
         this.PLAYER_VELOCITY = 350;
 
         //set nut sprite as a physics body
-        this.nut = this.physics.add.sprite(400, 48, "nut", 1).setScale(2);
-        this.nut.body.setAllowGravity(true).setSize(32, 32).setCollideWorldBounds(true);
+        this.nut = this.physics.add.sprite(400, 48, "nut", 1).setScale(3);
+        this.nut.body.setAllowGravity(true).setSize(16, 16).setCollideWorldBounds(true);
         this.NUT_VELOCITY = 100;
 
         //inivisible platform?
-        this.platform = this.physics.add.sprite(400, 400, "nut", 1).setScale(2);
-        this.nut.body.
+        this.platform = this.physics.add.sprite(400, 400, "nut", 1).setScale(3);
+        this.platform.body.setImmovable(true);
 
         //set variable for to bind up, down, left, right
         cursors = this.input.keyboard.createCursorKeys();
@@ -44,8 +44,8 @@ class Play extends Phaser.Scene {
             frameRate: 0,
             repeat: -1,
             frames: this.anims.generateFrameNumbers("character", {
-                start: 1,
-                end: 1
+                start: 0,
+                end: 0
             })
         });
 
@@ -54,8 +54,8 @@ class Play extends Phaser.Scene {
             frameRate: 0,
             repeat: -1,
             frames: this.anims.generateFrameNumbers("character", {
-                start: 10,
-                end: 10
+                start: 2,
+                end: 2
             })
         });
 
@@ -74,8 +74,8 @@ class Play extends Phaser.Scene {
             frameRate: 0,
             repeat: -1,
             frames: this.anims.generateFrameNumbers("character", {
-                start: 7,
-                end: 7
+                start: 6,
+                end: 6
             })
         });
 
@@ -85,7 +85,7 @@ class Play extends Phaser.Scene {
             repeat: -1,
             frames: this.anims.generateFrameNumbers("character", {
                 start: 0,
-                end: 2
+                end: 1
             })
         });
 
@@ -94,8 +94,8 @@ class Play extends Phaser.Scene {
             frameRate: 5,
             repeat: -1,
             frames: this.anims.generateFrameNumbers("character", {
-                start: 9,
-                end: 11
+                start: 2,
+                end: 3
             })
         });
 
@@ -104,7 +104,7 @@ class Play extends Phaser.Scene {
             frameRate: 5,
             repeat: -1,
             frames: this.anims.generateFrameNumbers("character", {
-                start: 3,
+                start: 4,
                 end: 5
             })
         });
@@ -115,7 +115,7 @@ class Play extends Phaser.Scene {
             repeat: -1,
             frames: this.anims.generateFrameNumbers("character", {
                 start: 6,
-                end: 8
+                end: 7
             })
         });
 
@@ -129,8 +129,19 @@ class Play extends Phaser.Scene {
                 end: 5
             })
         });
+
+        this.anims.create({
+            key: "nut-stop",
+            frameRate: 0,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers("nut", {
+                start: 0,
+                end: 0
+            })
+        })
         
         playerDirection = "down";
+        this.physics.add.collider(this.nut, this.platform);
     }
 
     update() {
@@ -161,6 +172,12 @@ class Play extends Phaser.Scene {
         this.player.play(playerMovement + "-" + playerDirection, true); //plays animation
 
         this.nut.setVelocity(0, this.NUT_VELOCITY);
-        this.nut.play("nut-spin", true);
+        if(!this.physics.collide(this.nut, this.platform)) {
+            this.nut.playReverse("nut-spin", true);
+        }
+        else {
+            console.log(console.log("HELLO!!!"));
+            this.nut.play("nut-stop", true);
+        }
     }
 }
