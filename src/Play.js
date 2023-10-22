@@ -15,10 +15,13 @@ class Play extends Phaser.Scene {
             frameWidth: 32,
             frameHeight: 32
         });
-
+        this.load.image("grid", "./assets/blah.png");
     }
 
     create() {
+
+        const Grid = this.add.grid(400, 400, 800, 800, 200, 200, 0x8453b5);
+
         this.cameras.main.setBackgroundColor("0x282247");
 
         //add music

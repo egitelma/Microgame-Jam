@@ -41,6 +41,7 @@ class Menu extends Phaser.Scene {
     update() {
         //check if spacebar has been pressed
         if (Phaser.Input.Keyboard.JustDown(spacebar)){
+            
             //set timer to end after 15 seconds
             game.settings = {
                 gameTime: 15000
