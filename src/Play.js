@@ -25,7 +25,7 @@ class Play extends Phaser.Scene {
 
         //load controller
         this.load.script("microgamejamcontroller", "./src/microgamejamcontroller.js");
-
+        this.load.image("grid", "./assets/blah.png");
     }
 
     create() {
@@ -36,6 +36,9 @@ class Play extends Phaser.Scene {
 
         this.test = MicrogameJamController(1, 3, false); 
         this.test.SetMaxTimer(15);
+
+
+        const Grid = this.add.grid(400, 400, 800, 800, 200, 200, 0x8453b5);
 
         this.cameras.main.setBackgroundColor("0x282247");
 
