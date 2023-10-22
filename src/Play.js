@@ -19,6 +19,9 @@ class Play extends Phaser.Scene {
     }
 
     create() {
+        this.test = MicrogameJamController(1, 3, false); 
+        this.test.SetMaxTimer(15);
+
         this.cameras.main.setBackgroundColor("0x282247");
 
         //add music
@@ -28,6 +31,8 @@ class Play extends Phaser.Scene {
             rate: 1,
             loop: true
         });
+
+        this.backgroundMusic.play();
 
         //set player sprite as a physics body
         this.player = this.physics.add.sprite(32, 32, "character", 1).setScale(3);
@@ -151,6 +156,10 @@ class Play extends Phaser.Scene {
         playerDirection = "down";
         this.physics.add.collider(this.nut, this.platform);
         this.nutAnimation = "nut-spin";
+
+        //when time's up, you win!
+        this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
+            this.test.WinGame();});
     }
 
     update() {
@@ -183,7 +192,7 @@ class Play extends Phaser.Scene {
         this.nut.setVelocity(0, this.NUT_VELOCITY);
         this.nut.playReverse(this.nutAnimation, true);
         this.physics.collide(this.nut, this.platform, ()=>{
-            console.log(console.log("HELLO!!!"));
+            console.log("HELLO!!!");
             this.nut.play("nut-stop", true);
             this.nut.texture="./assets/blacksquare.png";
         });

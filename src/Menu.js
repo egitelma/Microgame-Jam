@@ -6,12 +6,10 @@ class Menu extends Phaser.Scene {
     preload() {
         //this would be where we load audio
         this.load.audio("background_music", "./assets/ominous_ode_v2.wav");
-        this.load.script("microgamejamcontroller", "microgamegamcontroller.js");
+        this.load.script("microgamejamcontroller", "./src/microgamejamcontroller.js");
     }
 
     create() {
-        this.test = MicrogameJamController(1, 3, false);
-        this.test.SetMaxTimer(15);
         //set background color
         this.cameras.main.setBackgroundColor("0x282247");
 
