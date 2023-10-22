@@ -19,6 +19,7 @@ class Play extends Phaser.Scene {
     }
 
     create() {
+
         const Grid = this.add.grid(400, 400, 800, 800, 200, 200, 0x8453b5);
 
         this.cameras.main.setBackgroundColor("0x282247");
