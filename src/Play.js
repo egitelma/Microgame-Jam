@@ -21,6 +21,14 @@ class Play extends Phaser.Scene {
     create() {
         this.cameras.main.setBackgroundColor("0x282247");
 
+        //add music
+        this.backgroundMusic = this.sound.add("background_music", {
+            mute: false,
+            volume: 0.5,
+            rate: 1,
+            loop: true
+        });
+
         //set player sprite as a physics body
         this.player = this.physics.add.sprite(32, 32, "character", 1).setScale(3);
         this.player.body.setCollideWorldBounds(true).setSize(16, 16);
@@ -142,6 +150,7 @@ class Play extends Phaser.Scene {
         
         playerDirection = "down";
         this.physics.add.collider(this.nut, this.platform);
+        this.nutAnimation = "nut-spin";
     }
 
     update() {
@@ -172,12 +181,11 @@ class Play extends Phaser.Scene {
         this.player.play(playerMovement + "-" + playerDirection, true); //plays animation
 
         this.nut.setVelocity(0, this.NUT_VELOCITY);
-        if(!this.physics.collide(this.nut, this.platform)) {
-            this.nut.playReverse("nut-spin", true);
-        }
-        else {
+        this.nut.playReverse(this.nutAnimation, true);
+        this.physics.collide(this.nut, this.platform, ()=>{
             console.log(console.log("HELLO!!!"));
             this.nut.play("nut-stop", true);
-        }
+            this.nut.texture="./assets/blacksquare.png";
+        });
     }
 }
