@@ -13,7 +13,7 @@ let config = {
     },
     width: 800,
     height: 800,
-    scene: [ Menu, Play ]
+    scene: [ Play ]
 }
 
 let game = new Phaser.Game(config)

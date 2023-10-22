@@ -4,21 +4,36 @@ class Play extends Phaser.Scene {
     }
 
     preload() {
-        //load up placeholder spritesheet
+        //load up robot spritesheet
         this.load.spritesheet("character", "./assets/buddy.png", {
             frameWidth: 32,
             frameHeight: 32
         });
 
-        //load up nut spritesheet
+        //load up falling object spritesheets
         this.load.spritesheet("nut", "./assets/nutSpin.png", {
             frameWidth: 32,
             frameHeight: 32
         });
+        this.load.spritesheet("bolt1", "./assets/boltSpin1.png", {
+            frameWidth: 16,
+            frameHeight: 16
+        });
+
+        //load audio
+        this.load.audio("background_music", "./assets/ominous_ode_v2.wav");
+
+        //load controller
+        this.load.script("microgamejamcontroller", "./src/microgamejamcontroller.js");
 
     }
 
     create() {
+        //game settings
+        game.settings = {
+            gameTime: 15000
+        }
+
         this.test = MicrogameJamController(1, 3, false); 
         this.test.SetMaxTimer(15);
 

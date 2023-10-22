@@ -5,8 +5,7 @@ class Menu extends Phaser.Scene {
 
     preload() {
         //this would be where we load audio
-        this.load.audio("background_music", "./assets/ominous_ode_v2.wav");
-        this.load.script("microgamejamcontroller", "./src/microgamejamcontroller.js");
+        
     }
 
     create() {
