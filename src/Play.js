@@ -307,7 +307,7 @@ class Play extends Phaser.Scene {
                 row = Math.floor((this.fallingObjects[i].y - 40) / 100);
                 col = Math.floor((this.fallingObjects[i].x - 40) / 100);
                 console.log("hi! :3    number: %i", this.grid[row][col]);
-                this.grid[row][col] = 0;
+                this.grid[row][col] = 16;
                 let map = this.make.tilemap({data: this.grid, tileWidth: 16, tileHeight: 16});
                 let tiles = map.addTilesetImage("tiles");
                 let layer = map.createLayer(0, tiles, 0, 0);
