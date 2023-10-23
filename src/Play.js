@@ -19,6 +19,10 @@ class Play extends Phaser.Scene {
             frameWidth: 16,
             frameHeight: 16
         });
+        this.load.spritesheet("bolt2", "./assets/boltSpin2.png", {
+            frameWidth: 16,
+            frameHeight: 16
+        });
 
         //load audio
         this.load.audio("background_music", "./assets/ominous_ode_v2.wav");
@@ -31,7 +35,7 @@ class Play extends Phaser.Scene {
     create() {
         //game settings
         game.settings = {
-            gameTime: 15000
+            gameTimer: 14999
         }
 
         this.test = MicrogameJamController(1, 3, false); 
@@ -57,10 +61,25 @@ class Play extends Phaser.Scene {
         this.player.body.setCollideWorldBounds(true).setSize(16, 16);
         this.PLAYER_VELOCITY = 350;
 
-        //set nut sprite as a physics body
-        this.nut = this.physics.add.sprite(400, 48, "nut", 1).setScale(3);
-        this.nut.body.setAllowGravity(true).setSize(16, 16).setCollideWorldBounds(true);
-        this.NUT_VELOCITY = 100;
+        //add a group to place randomly generated nuts & bolts in
+        this.fallingObjects = [];
+        this.objectList = ["nut", "bolt1", "bolt2"];
+        this.falling = [100, 300, 500, 700]; //values for places that the bolts can fall, and where they stop falling
+        this.objectsStopFalling = []; //each object stops falling at the appropriate x value
+
+        //generate nuts & bolts
+        for (let i=0; i<6; i++){
+            let numX = this.falling[Math.floor(Math.random()*this.falling.length)]; //x value
+            this.objectsStopFalling.push(this.falling[Math.floor(Math.random()*this.falling.length)]); //also set a y value for where it stops falling
+            let nameObject = this.objectList[Math.floor(Math.random()*this.objectList.length)];
+            // let numY = this.fallingY[Math.floor(Math.random()*this.fallingY.length)];
+            this.fallingObjects.push(this.physics.add.sprite(numX, 0, nameObject).setScale(6)); //adds to list of falling objects
+            this.fallingObjects[this.fallingObjects.length-1].body.setAllowGravity(true).setSize(16, 16).setCollideWorldBounds(true); //i know this looks disgusting. sorry. sets size, gravity, and world bound collision
+            console.log(this.fallingObjects[i]);
+        }
+        // this.numObjectsDown = 0; //increment whenever a new object falls
+        
+        this.FALL_VELOCITY = 100;
 
         //inivisible platform?
         this.platform = this.physics.add.sprite(400, 400, "nut", 1).setScale(3);
@@ -169,15 +188,55 @@ class Play extends Phaser.Scene {
                 start: 0,
                 end: 0
             })
-        })
+        });
+
+        this.anims.create({
+            key: "bolt-spin1",
+            frameRate: 5,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers("bolt1", {
+                start: 0,
+                end: 7
+            })
+        });
+
+        this.anims.create({
+            key: "bolt1-spin",
+            frameRate: 5,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers("bolt1", {
+                start: 0,
+                end: 7
+            })
+        });
+
+        this.anims.create({
+            key: "bolt2-spin",
+            frameRate: 5,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers("bolt2", {
+                start: 0,
+                end: 7
+            })
+        });
         
         playerDirection = "down";
-        this.physics.add.collider(this.nut, this.platform);
-        this.nutAnimation = "nut-spin";
+        // this.physics.add.collider(this.nut, this.platform);
 
         //when time's up, you win!
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
-            this.test.WinGame();});
+            this.test.WinGame();
+        });
+        
+        //but also, spawn falling objects every 2 seconds
+        this.timer = new Phaser.Time.TimerEvent({
+            delay: 2,
+            repeat: 6,
+            loop: false,
+            callback: function(){
+                console.log("2 seconds have passed.");
+            }
+        })
     }
 
     update() {
@@ -207,12 +266,21 @@ class Play extends Phaser.Scene {
         playerVector.length() ? playerMovement = "walk" : playerMovement = "idle" //idle or walk animation?
         this.player.play(playerMovement + "-" + playerDirection, true); //plays animation
 
-        this.nut.setVelocity(0, this.NUT_VELOCITY);
-        this.nut.playReverse(this.nutAnimation, true);
-        this.physics.collide(this.nut, this.platform, ()=>{
-            console.log("HELLO!!!");
-            this.nut.play("nut-stop", true);
-            this.nut.texture="./assets/blacksquare.png";
-        });
+        for (let i=0; i<this.fallingObjects.length; i++){
+            let falling_animation = this.fallingObjects[i].texture.key + "-spin";
+            this.fallingObjects[i].setVelocity(0, this.FALL_VELOCITY);
+            this.fallingObjects[i].playReverse(falling_animation, true);
+        }
+
+        //is the object at the place where it needs to stop falling?
+        for (let i=0; i<this.fallingObjects.length; i++){
+            if(this.fallingObjects[i].y >= this.objectsStopFalling[i]-10 && this.fallingObjects[i].y <= this.objectsStopFalling[i]+10){
+                console.log("OBJECT DESTROYED");
+                // this.fallingObjects[i].destroy();
+                this.fallingObjects[i].setAlpha(0);
+                // this.fallingObjects.splice(i, i);
+                // this.objectsStopFalling.splice(i, i);
+            }
+        }
     }
 }

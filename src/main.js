@@ -8,7 +8,7 @@ let config = {
     physics: {
         default: "arcade",
         arcade: {
-            debug: false
+            // debug: true
         }
     },
     width: 800,
@@ -21,3 +21,4 @@ let game = new Phaser.Game(config)
 let cursors;
 let playerDirection;
 let spacebar;
+let gridSpaces;
