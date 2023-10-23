@@ -64,16 +64,17 @@ class Play extends Phaser.Scene {
         //add a group to place randomly generated nuts & bolts in
         this.fallingObjects = [];
         this.objectList = ["nut", "bolt1", "bolt2"];
-        this.falling = [100, 300, 500, 700]; //values for places that the bolts can fall, and where they stop falling
-        this.objectsStopFalling = []; //each object stops falling at the appropriate x value
+        this.falling = [100, 300, 500, 700]; //god this hardcoding is terrible practice but we don't have time for me to respect the art of programming. values for places that the bolts can fall, and where they stop falling
+        this.objectsStopFalling = []; //each object stops falling at the appropriate y value
 
         //generate nuts & bolts
-        for (let i=0; i<6; i++){
+        for (let i=1; i<9; i++){
             let numX = this.falling[Math.floor(Math.random()*this.falling.length)]; //x value
+            let numY = -200 * i;
             this.objectsStopFalling.push(this.falling[Math.floor(Math.random()*this.falling.length)]); //also set a y value for where it stops falling
-            let nameObject = this.objectList[Math.floor(Math.random()*this.objectList.length)];
-            // let numY = this.fallingY[Math.floor(Math.random()*this.fallingY.length)];
-            this.fallingObjects.push(this.physics.add.sprite(numX, 0, nameObject).setScale(6)); //adds to list of falling objects
+            let nameObject = this.objectList[Math.floor(Math.random()*this.objectList.length)]; //nut, bolt1, bolt2?
+            
+            this.fallingObjects.push(this.physics.add.sprite(numX, numY, nameObject).setScale(6)); //adds to list of falling objects
             this.fallingObjects[this.fallingObjects.length-1].body.setAllowGravity(true).setSize(16, 16); //i know this looks disgusting. sorry. sets size, gravity, and world bound collision
             console.log(this.fallingObjects[i]);
         }
@@ -82,8 +83,8 @@ class Play extends Phaser.Scene {
         this.FALL_VELOCITY = 100;
 
         //inivisible platform?
-        this.platform = this.physics.add.sprite(400, 400, "nut", 1).setScale(3);
-        this.platform.body.setImmovable(true);
+        // this.platform = this.physics.add.sprite(400, 400, "nut", 1).setScale(3);
+        // this.platform.body.setImmovable(true);
 
         //set variable for to bind up, down, left, right
         cursors = this.input.keyboard.createCursorKeys();
@@ -226,17 +227,31 @@ class Play extends Phaser.Scene {
         //when time's up, you win!
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
             this.test.WinGame();
+            let menuConfig = {
+                fontFamily: "Courier",
+                fontSize: "28px",
+                color: "#000000",
+                align: "right",
+                padding: {
+                    top: 5,
+                    bottom: 5
+                },
+                fixedWidth: 0
+            }
+            this.add.text(game.config.width/2, game.config.height/2, "YOU WIN! :)", menuConfig).setOrigin(0.5);
+            game.destroy();
         });
         
         //but also, spawn falling objects every 2 seconds
-        this.timer = new Phaser.Time.TimerEvent({
-            delay: 2,
-            repeat: 6,
-            loop: false,
-            callback: function(){
-                console.log("2 seconds have passed.");
-            }
-        })
+        // this.timer = new Phaser.Time.TimerEvent({
+        //     delay: 2,
+        //     repeat: 6,
+        //     loop: false,
+        //     callback: function(){
+        //         console.log("2 seconds have passed.");
+        //     }
+        // })
+        //this didnt work and didnt have time to fix it. oopsie
     }
 
     update() {
@@ -275,11 +290,11 @@ class Play extends Phaser.Scene {
         //is the object at the place where it needs to stop falling?
         for (let i=0; i<this.fallingObjects.length; i++){
             if(this.fallingObjects[i].y >= this.objectsStopFalling[i]-10 && this.fallingObjects[i].y <= this.objectsStopFalling[i]+10){
+                //destroy (make invisible) object when it hits the ground
                 console.log("OBJECT DESTROYED");
-                // this.fallingObjects[i].destroy();
                 this.fallingObjects[i].setAlpha(0);
-                // this.fallingObjects.splice(i, i);
-                // this.objectsStopFalling.splice(i, i);
+
+                //lose game
                 if((this.fallingObjects[i].y >= this.player.y-100 && this.fallingObjects[i].y <= this.player.y+100) && (this.fallingObjects[i].x >= this.player.x-100 && this.fallingObjects[i].x <= this.player.x+100)){
                     this.test.LoseGame();
                     let menuConfig = {
@@ -293,7 +308,7 @@ class Play extends Phaser.Scene {
                         },
                         fixedWidth: 0
                     }
-                    this.add.text(game.config.width/2, game.config.height/2, "GAME OVER :(", menuConfig).setOrigin(0.5);
+                    this.add.text(game.config.width/2, game.config.height/2, "GAME OVER. YOU LOSE :(", menuConfig).setOrigin(0.5);
                     game.destroy();
                 }
             }
