@@ -41,13 +41,13 @@ class Play extends Phaser.Scene {
         this.test = MicrogameJamController(1, 3, false); 
         this.test.SetMaxTimer(15);
 
-        let grid = [
+        this.grid = [
             [ 0, 1, 2, 3],
             [ 4, 5, 6, 7],
             [ 8, 9,10,11],
             [12,13,14,15],
         ];
-        let map = this.make.tilemap({data: grid, tileWidth: 16, tileHeight: 16});
+        let map = this.make.tilemap({data: this.grid, tileWidth: 16, tileHeight: 16});
         let tiles = map.addTilesetImage("tiles");
         let layer = map.createLayer(0, tiles, 0, 0);
         layer.setScale(6.25);
@@ -230,6 +230,7 @@ class Play extends Phaser.Scene {
         this.menuConfig = {
             fontFamily: "Courier",
             fontSize: "28px",
+            backgroundColor: "#FFFFFF",
             color: "#000000",
             align: "right",
             padding: {
@@ -307,9 +308,9 @@ class Play extends Phaser.Scene {
                 col = Math.floor((this.fallingObjects[i].x - 40) / 100);
                 console.log("hi! :3    number: %i", this.grid[row][col]);
                 this.grid[row][col] = 0;
-                map = this.make.tilemap({data: grid, tileWidth: 16, tileHeight: 16});
-                tiles = map.addTilesetImage("tiles");
-                layer = map.createLayer(0, tiles, 0, 0);
+                let map = this.make.tilemap({data: this.grid, tileWidth: 16, tileHeight: 16});
+                let tiles = map.addTilesetImage("tiles");
+                let layer = map.createLayer(0, tiles, 0, 0);
                 layer.setScale(6.25);
 
                 if((this.fallingObjects[i].y >= this.player.y-50 && this.fallingObjects[i].y <= this.player.y+50) && (this.fallingObjects[i].x >= this.player.x-50 && this.fallingObjects[i].x <= this.player.x+50)){
