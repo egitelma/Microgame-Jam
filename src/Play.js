@@ -57,6 +57,7 @@ class Play extends Phaser.Scene {
         let tiles = map.addTilesetImage("tiles");
         let layer = map.createLayer(0, tiles, 0, 0);
         layer.setScale(6.25);
+        layer.setAlpha(0.45);
 
         this.cameras.main.setBackgroundColor("0x282247");
 
