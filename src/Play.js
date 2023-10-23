@@ -24,6 +24,12 @@ class Play extends Phaser.Scene {
             frameHeight: 16
         });
 
+        //load warning images
+        this.load.spritesheet("warning", "./assets/warning.png", {
+            frameWidth: 16,
+            frameHeight: 16
+        });
+
         //load audio
         this.load.audio("background_music", "./assets/ominous_ode_v2.wav");
 
@@ -74,17 +80,18 @@ class Play extends Phaser.Scene {
         this.objectList = ["nut", "bolt1", "bolt2"];
         this.falling = [50, 150, 250, 350]; //values for places that the bolts can fall, and where they stop falling
         this.objectsStopFalling = []; //each object stops falling at the appropriate x value
+        this.warningFlash = [];
 
         //generate nuts & bolts
-        for (let i=0; i<12; i++){
-            let numX = this.falling[Math.floor(Math.random()*this.falling.length)]; //x value
-            let numY = -100 * i;
-            this.objectsStopFalling.push(this.falling[Math.floor(Math.random()*this.falling.length)]); //also set a y value for where it stops falling
-            let nameObject = this.objectList[Math.floor(Math.random()*this.objectList.length)]; //nut, bolt1, bolt2?
+        // for (let i=0; i<12; i++){
+        //     let numX = this.falling[Math.floor(Math.random()*this.falling.length)]; //x value
+        //     let numY = -100 * i;
+        //     this.objectsStopFalling.push(this.falling[Math.floor(Math.random()*this.falling.length)]); //also set a y value for where it stops falling
+        //     let nameObject = this.objectList[Math.floor(Math.random()*this.objectList.length)]; //nut, bolt1, bolt2?
             
-            this.fallingObjects.push(this.physics.add.sprite(numX, numY, nameObject).setScale(3)); //adds to list of falling objects
-            this.fallingObjects[this.fallingObjects.length-1].body.setAllowGravity(true).setSize(16, 16); //i know this looks disgusting. sorry. sets size, gravity, and world bound collision
-        }
+        //     this.fallingObjects.push(this.physics.add.sprite(numX, numY, nameObject).setScale(3)); //adds to list of falling objects
+        //     this.fallingObjects[this.fallingObjects.length-1].body.setAllowGravity(true).setSize(16, 16); //i know this looks disgusting. sorry. sets size, gravity, and world bound collision
+        // }
         // this.numObjectsDown = 0; //increment whenever a new object falls
         
         this.FALL_VELOCITY = 100;
@@ -185,16 +192,6 @@ class Play extends Phaser.Scene {
         });
 
         this.anims.create({
-            key: "nut-stop",
-            frameRate: 0,
-            repeat: -1,
-            frames: this.anims.generateFrameNumbers("nut", {
-                start: 0,
-                end: 0
-            })
-        });
-
-        this.anims.create({
             key: "bolt-spin1",
             frameRate: 5,
             repeat: -1,
@@ -223,6 +220,16 @@ class Play extends Phaser.Scene {
                 end: 7
             })
         });
+
+        this.anims.create({
+            key: "warning-flash",
+            frameRate: 2,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers("warning", {
+                start: 0,
+                end: 1
+            })
+        })
         
         playerDirection = "down";
         // this.physics.add.collider(this.nut, this.platform);
@@ -256,9 +263,31 @@ class Play extends Phaser.Scene {
             },
             loop: true
         });
+
+        this.timerFall = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                this.dropItem = true;
+            },
+            loop: true
+        });
     }
 
     update() {
+        if(this.dropItem) {
+            this.dropItem = false;
+            let numX = this.falling[Math.floor(Math.random()*this.falling.length)]; //x value
+            let numY = -200;
+            let yToFall = this.falling[Math.floor(Math.random()*this.falling.length)];
+            this.objectsStopFalling.push(yToFall); //also set a y value for where it stops falling
+            let nameObject = this.objectList[Math.floor(Math.random()*this.objectList.length)]; //nut, bolt1, bolt2?
+            
+            this.fallingObjects.push(this.physics.add.sprite(numX, numY, nameObject).setScale(3)); //adds to list of falling objects
+            this.fallingObjects[this.fallingObjects.length-1].body.setAllowGravity(true).setSize(16, 16); //i know this looks disgusting. sorry. sets size, gravity, and world bound collision
+
+            //add warning at spot where it's gonna fall
+            this.warningFlash.push(this.add.sprite(numX, yToFall, "warning").setScale(6));
+        }
         this.text.destroy();
         this.text = this.add.text(15, game.config.height-32, this.timeLeft, this.menuConfig);
 
@@ -281,38 +310,30 @@ class Play extends Phaser.Scene {
             playerDirection = "down";
         }
 
+        //player movement walking
         playerVector.normalize();
         this.player.setVelocity(this.PLAYER_VELOCITY * playerVector.x, this.PLAYER_VELOCITY * playerVector.y);
-
         let playerMovement;
         playerVector.length() ? playerMovement = "walk" : playerMovement = "idle" //idle or walk animation?
         this.player.play(playerMovement + "-" + playerDirection, true); //plays animation
 
+        //play animation for all falling objects and warning flashes
         for (let i=0; i<this.fallingObjects.length; i++){
             let falling_animation = this.fallingObjects[i].texture.key + "-spin";
             this.fallingObjects[i].setVelocity(0, this.FALL_VELOCITY);
             this.fallingObjects[i].playReverse(falling_animation, true);
+            this.warningFlash[i].play("warning-flash", true);
         }
 
         //is the object at the place where it needs to stop falling?
         let row, col;
         for (let i=0; i<this.fallingObjects.length; i++){
             if(this.fallingObjects[i].y >= this.objectsStopFalling[i]-5 && this.fallingObjects[i].y <= this.objectsStopFalling[i]+5){
-                //destroy (make invisible) object when it hits the ground
+                //destroy (make invisible) object when it hits the ground (and warning)
                 this.fallingObjects[i].setAlpha(0);
-                // this.fallingObjects.splice(i, i);
-                // this.objectsStopFalling.splice(i, i);
+                this.warningFlash[i].setAlpha(0);
 
-                // make corresponding grid square blank
-                row = Math.floor((this.fallingObjects[i].y - 40) / 100);
-                col = Math.floor((this.fallingObjects[i].x - 40) / 100);
-                console.log("hi! :3    number: %i", this.grid[row][col]);
-                this.grid[row][col] = 16;
-                let map = this.make.tilemap({data: this.grid, tileWidth: 16, tileHeight: 16});
-                let tiles = map.addTilesetImage("tiles");
-                let layer = map.createLayer(0, tiles, 0, 0);
-                layer.setScale(6.25);
-
+                //check if player in range
                 if((this.fallingObjects[i].y >= this.player.y-50 && this.fallingObjects[i].y <= this.player.y+50) && (this.fallingObjects[i].x >= this.player.x-50 && this.fallingObjects[i].x <= this.player.x+50)){
                     this.test.LoseGame();
                     this.add.text(game.config.width/2, game.config.height/2, "GAME OVER. YOU LOSE :(", this.menuConfig).setOrigin(0.5);
