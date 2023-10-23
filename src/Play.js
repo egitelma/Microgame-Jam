@@ -74,7 +74,7 @@ class Play extends Phaser.Scene {
             let nameObject = this.objectList[Math.floor(Math.random()*this.objectList.length)];
             // let numY = this.fallingY[Math.floor(Math.random()*this.fallingY.length)];
             this.fallingObjects.push(this.physics.add.sprite(numX, 0, nameObject).setScale(6)); //adds to list of falling objects
-            this.fallingObjects[this.fallingObjects.length-1].body.setAllowGravity(true).setSize(16, 16).setCollideWorldBounds(true); //i know this looks disgusting. sorry. sets size, gravity, and world bound collision
+            this.fallingObjects[this.fallingObjects.length-1].body.setAllowGravity(true).setSize(16, 16); //i know this looks disgusting. sorry. sets size, gravity, and world bound collision
             console.log(this.fallingObjects[i]);
         }
         // this.numObjectsDown = 0; //increment whenever a new object falls
@@ -280,6 +280,22 @@ class Play extends Phaser.Scene {
                 this.fallingObjects[i].setAlpha(0);
                 // this.fallingObjects.splice(i, i);
                 // this.objectsStopFalling.splice(i, i);
+                if((this.fallingObjects[i].y >= this.player.y-100 && this.fallingObjects[i].y <= this.player.y+100) && (this.fallingObjects[i].x >= this.player.x-100 && this.fallingObjects[i].x <= this.player.x+100)){
+                    this.test.LoseGame();
+                    let menuConfig = {
+                        fontFamily: "Courier",
+                        fontSize: "28px",
+                        color: "#000000",
+                        align: "right",
+                        padding: {
+                            top: 5,
+                            bottom: 5
+                        },
+                        fixedWidth: 0
+                    }
+                    this.add.text(game.config.width/2, game.config.height/2, "GAME OVER :(", menuConfig).setOrigin(0.5);
+                    game.destroy();
+                }
             }
         }
     }
