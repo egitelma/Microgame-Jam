@@ -13,6 +13,7 @@ let config = {
     },
     width: 400,
     height: 400,
+    pixelArt: true,
     scene: [ Play ]
 }
 
