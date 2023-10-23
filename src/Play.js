@@ -334,7 +334,7 @@ class Play extends Phaser.Scene {
                 this.warningFlash[i].setAlpha(0);
 
                 //check if player in range
-                if((this.fallingObjects[i].y >= this.player.y-50 && this.fallingObjects[i].y <= this.player.y+50) && (this.fallingObjects[i].x >= this.player.x-50 && this.fallingObjects[i].x <= this.player.x+50)){
+                if((this.fallingObjects[i].y >= this.player.y-30 && this.fallingObjects[i].y <= this.player.y+30) && (this.fallingObjects[i].x >= this.player.x-30 && this.fallingObjects[i].x <= this.player.x+30)){
                     this.test.LoseGame();
                     this.add.text(game.config.width/2, game.config.height/2, "GAME OVER. YOU LOSE :(", this.menuConfig).setOrigin(0.5);
                     game.destroy();
