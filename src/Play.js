@@ -42,7 +42,7 @@ class Play extends Phaser.Scene {
         this.test.SetMaxTimer(15);
 
 
-        const Grid = this.add.grid(400, 400, 800, 800, 200, 200, 0x8453b5);
+        const Grid = this.add.grid(200, 200, 400, 400, 100, 100, 0x8453b5);
 
         this.cameras.main.setBackgroundColor("0x282247");
 
@@ -64,19 +64,18 @@ class Play extends Phaser.Scene {
         //add a group to place randomly generated nuts & bolts in
         this.fallingObjects = [];
         this.objectList = ["nut", "bolt1", "bolt2"];
-        this.falling = [100, 300, 500, 700]; //god this hardcoding is terrible practice but we don't have time for me to respect the art of programming. values for places that the bolts can fall, and where they stop falling
+        this.falling = [50, 150, 250, 350]; //god this hardcoding is terrible practice but we don't have time for me to respect the art of programming. values for places that the bolts can fall, and where they stop falling
         this.objectsStopFalling = []; //each object stops falling at the appropriate y value
 
         //generate nuts & bolts
-        for (let i=1; i<9; i++){
+        for (let i=1; i<12; i++){
             let numX = this.falling[Math.floor(Math.random()*this.falling.length)]; //x value
-            let numY = -200 * i;
+            let numY = -100 * i;
             this.objectsStopFalling.push(this.falling[Math.floor(Math.random()*this.falling.length)]); //also set a y value for where it stops falling
             let nameObject = this.objectList[Math.floor(Math.random()*this.objectList.length)]; //nut, bolt1, bolt2?
             
-            this.fallingObjects.push(this.physics.add.sprite(numX, numY, nameObject).setScale(6)); //adds to list of falling objects
+            this.fallingObjects.push(this.physics.add.sprite(numX, numY, nameObject).setScale(4)); //adds to list of falling objects
             this.fallingObjects[this.fallingObjects.length-1].body.setAllowGravity(true).setSize(16, 16); //i know this looks disgusting. sorry. sets size, gravity, and world bound collision
-            console.log(this.fallingObjects[i]);
         }
         // this.numObjectsDown = 0; //increment whenever a new object falls
         
@@ -224,37 +223,40 @@ class Play extends Phaser.Scene {
         playerDirection = "down";
         // this.physics.add.collider(this.nut, this.platform);
 
+        this.menuConfig = {
+            fontFamily: "Courier",
+            fontSize: "28px",
+            color: "#000000",
+            align: "right",
+            padding: {
+                top: 5,
+                bottom: 5
+            },
+            fixedWidth: 0
+        }
+
         //when time's up, you win!
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
             this.test.WinGame();
-            let menuConfig = {
-                fontFamily: "Courier",
-                fontSize: "28px",
-                color: "#000000",
-                align: "right",
-                padding: {
-                    top: 5,
-                    bottom: 5
-                },
-                fixedWidth: 0
-            }
-            this.add.text(game.config.width/2, game.config.height/2, "YOU WIN! :)", menuConfig).setOrigin(0.5);
+            this.add.text(game.config.width/2, game.config.height/2, "YOU WIN! :)", this.menuConfig).setOrigin(0.5);
             game.destroy();
         });
-        
-        //but also, spawn falling objects every 2 seconds
-        // this.timer = new Phaser.Time.TimerEvent({
-        //     delay: 2,
-        //     repeat: 6,
-        //     loop: false,
-        //     callback: function(){
-        //         console.log("2 seconds have passed.");
-        //     }
-        // })
-        //this didnt work and didnt have time to fix it. oopsie
+
+        this.timeLeft = 15;
+        this.text = this.add.text(15, game.config.height-32, this.timeLeft, this.menuConfig);
+        this.timer = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                this.timeLeft--;
+            },
+            loop: true
+        });
     }
 
     update() {
+        this.text.destroy();
+        this.text = this.add.text(15, game.config.height-32, this.timeLeft, this.menuConfig);
+
         let playerVector = new Phaser.Math.Vector2(0, 0);
 
         if(cursors.left.isDown) {
@@ -289,26 +291,14 @@ class Play extends Phaser.Scene {
 
         //is the object at the place where it needs to stop falling?
         for (let i=0; i<this.fallingObjects.length; i++){
-            if(this.fallingObjects[i].y >= this.objectsStopFalling[i]-10 && this.fallingObjects[i].y <= this.objectsStopFalling[i]+10){
+            if(this.fallingObjects[i].y >= this.objectsStopFalling[i]-5 && this.fallingObjects[i].y <= this.objectsStopFalling[i]+5){
                 //destroy (make invisible) object when it hits the ground
-                console.log("OBJECT DESTROYED");
                 this.fallingObjects[i].setAlpha(0);
 
                 //lose game
-                if((this.fallingObjects[i].y >= this.player.y-100 && this.fallingObjects[i].y <= this.player.y+100) && (this.fallingObjects[i].x >= this.player.x-100 && this.fallingObjects[i].x <= this.player.x+100)){
+                if((this.fallingObjects[i].y >= this.player.y-50 && this.fallingObjects[i].y <= this.player.y+50) && (this.fallingObjects[i].x >= this.player.x-50 && this.fallingObjects[i].x <= this.player.x+50)){
                     this.test.LoseGame();
-                    let menuConfig = {
-                        fontFamily: "Courier",
-                        fontSize: "28px",
-                        color: "#000000",
-                        align: "right",
-                        padding: {
-                            top: 5,
-                            bottom: 5
-                        },
-                        fixedWidth: 0
-                    }
-                    this.add.text(game.config.width/2, game.config.height/2, "GAME OVER. YOU LOSE :(", menuConfig).setOrigin(0.5);
+                    this.add.text(game.config.width/2, game.config.height/2, "GAME OVER. YOU LOSE :(", this.menuConfig).setOrigin(0.5);
                     game.destroy();
                 }
             }

@@ -11,8 +11,8 @@ let config = {
             // debug: true
         }
     },
-    width: 800,
-    height: 800,
+    width: 400,
+    height: 400,
     scene: [ Play ]
 }
 
